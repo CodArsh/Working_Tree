@@ -1,0 +1,41 @@
+import { useEffect, useState } from "react";
+import { Button } from "react-bootstrap";
+import $ from "jquery";
+const Http = () => {
+  const [data, setData] = useState([]);
+  const ajaxRequest = () => {
+    $.ajax({
+      type: "GET",
+      url: "http://localhost:3232/",
+      success: function (response) {
+        return setData(response);
+      },
+    });
+  };
+  useEffect(() => {
+    ajaxRequest();
+  }, []);
+  const Card = (data) => {
+    return (
+      <div className="card mb-4">
+        <div className="card-header">{data.userData.title}</div>
+        <div className="card-body">{data.userData.body}</div>
+      </div>
+    );
+  };
+  const design = (
+    <>
+      <div className="container py-4">
+        <div className="d-flex justify-content-between mb-4 align-items-center">
+          <h1 className="m-0 p-0 display-6">Comments</h1>
+          <button className="btn btn-success">New Comment</button>
+        </div>
+        {data.map((item) => {
+          return <Card userData={item} key={item.id} />;
+        })}
+      </div>
+    </>
+  );
+  return design;
+};
+export default Http;
