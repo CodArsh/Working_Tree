@@ -1,0 +1,19 @@
+import logo from "./logo.svg";
+import "./App.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import Http from "./HTTP";
+import "animate.css/animate.min.css"
+
+function App() {
+  return (
+    <>
+      <Http />
+    </>
+  );
+}
+
+export default App;
+
+
+# command update
+- install animate.css (npm i animate.css --save)
