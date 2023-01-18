@@ -1,7 +1,8 @@
-import logo from "./logo.svg";
+
+import Http from "./HTTP";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import Http from "./HTTP";
+import 'font-awesome/css/font-awesome.min.css';
 import "animate.css/animate.min.css"
 
 function App() {
@@ -14,6 +15,3 @@ function App() {
 
 export default App;
 
-
-# command update
-- install new API
