@@ -9,6 +9,10 @@ const Http = () => {
   const [slide, setSlide] = useState("animate__animated animate__fadeIn");
   const [total, setTotal] = useState(0);
   const [submit, setSubmit] = useState(true);
+  const [fields, setFields] = useState({
+    title: "",
+    body: "",
+  });
   const fetchData = () => {
     $.ajax({
       type: "GET",
@@ -23,7 +27,7 @@ const Http = () => {
       type: "GET",
       url: `http://localhost:3232/${count}`,
       success: function (response) {
-        return (setData([response]), setTotal(response.totalComment));
+        return setData([response]), setTotal(response.totalComment);
       },
       error: function (err) {
         if (err.status === 404) {
@@ -45,20 +49,45 @@ const Http = () => {
     count > 0 &&
     (setCount(count - 1), setSlide("animate__animated animate__slideInLeft"));
 
-  const updateComment = (data) => {
-    return console.log(data);
+  const updateComment = (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    const id = data[0].id;
+    $.ajax({
+      type: "PUT",
+      url: `http://localhost:3232/${id}`,
+      data: formData,
+      contentType: false,
+      processData: false,
+      success: function (response) {
+        return (
+          setModal(false),
+          setData([
+            {
+              id:id,
+              title: formData.get("title"),
+              body: formData.get("body"),
+            },
+          ])
+        );
+      },
+      error: function (err) {
+        console.log(err);
+      },
+    });
   };
   const deleteComment = (id) => {
     $.ajax({
       type: "DELETE",
       url: `http://localhost:3232/${id}`,
       success: function (response) {
-        console.log(response)
+        console.log(response);
       },
       error: function (err) {
-        console.log(err)
-      }
-    })
+        console.log(err);
+      },
+    });
   };
   const insertComment = (e) => {
     e.preventDefault();
@@ -81,10 +110,7 @@ const Http = () => {
         <div className="card-header text-capitalize d-flex justify-content-between">
           <label>{data.userData.title}</label>
           <div>
-            <button
-              className="btn btn-light"
-              onClick={() => showModal(false)}
-            >
+            <button className="btn btn-light" onClick={() => showModal(false)}>
               <i className="fa fa-edit"></i>
             </button>
             <button
@@ -100,16 +126,32 @@ const Http = () => {
     );
   };
   const showModal = (isSubmit) => {
-    return (
-      setModal(true),
-      setSubmit(isSubmit)
-    )
-  }
+    let updateMe = {
+      title: "",
+      body: "",
+    };
+    if (!isSubmit) {
+      updateMe.title = data[0].title;
+      updateMe.body = data[0].body;
+    }
+    return setModal(true), setSubmit(isSubmit), setFields(updateMe);
+  };
+  const setValue = (e) => {
+    const input = e.target;
+    return setFields((old_data) => {
+      return {
+        ...old_data,
+        [input.name]: input.value,
+      };
+    });
+  };
   const design = (
     <>
       <div className="container py-4 overflow-hidden">
         <div className="d-flex justify-content-between mb-4 align-items-center">
-          <h1 className="m-0 p-0 display-6">Comments - {count} / {total}</h1>
+          <h1 className="m-0 p-0 display-6">
+            Comments - {count} / {total}
+          </h1>
           <button className="btn btn-success" onClick={() => showModal(true)}>
             New Comment
           </button>
@@ -121,7 +163,10 @@ const Http = () => {
           <button className="btn btn-light border me-2 px-3" onClick={prev}>
             Prev
           </button>
-          <button className="btn btn-light border px-3" onClick={next}>
+          <button
+            className="btn btn-light border px-3"
+            onClick={count < total && next}
+          >
             Next
           </button>
           <Modal show={modal} onHide={() => setModal(false)}>
@@ -136,6 +181,8 @@ const Http = () => {
                     className="form-control"
                     type={"text"}
                     name={"title"}
+                    value={fields.title}
+                    onChange={setValue}
                   />
                 </div>
                 <div className="mb-3">
@@ -145,9 +192,15 @@ const Http = () => {
                     className="form-control"
                     type={"text"}
                     name={"body"}
+                    value={fields.body}
+                    onChange={setValue}
                   ></textarea>
                 </div>
-                <button className="btn btn-primary">Submit</button>
+                {submit ? (
+                  <button className="btn btn-primary">Submit</button>
+                ) : (
+                  <button className="btn btn-dark">Update</button>
+                )}
               </Form>
             </Modal.Body>
           </Modal>
