@@ -7,6 +7,8 @@ const Http = () => {
   const [count, setCount] = useState(0);
   const [modal, setModal] = useState(false);
   const [slide, setSlide] = useState("animate__animated animate__fadeIn");
+  const [total, setTotal] = useState(0);
+  const [submit, setSubmit] = useState(true);
   const fetchData = () => {
     $.ajax({
       type: "GET",
@@ -21,7 +23,7 @@ const Http = () => {
       type: "GET",
       url: `http://localhost:3232/${count}`,
       success: function (response) {
-        return setData([response]);
+        return (setData([response]), setTotal(response.totalComment));
       },
       error: function (err) {
         if (err.status === 404) {
@@ -48,12 +50,12 @@ const Http = () => {
   };
   const deleteComment = (id) => {
     $.ajax({
-      type:"DELETE",
-      url:`http://localhost:3232/${id}`,
-      success:function(response){
+      type: "DELETE",
+      url: `http://localhost:3232/${id}`,
+      success: function (response) {
         console.log(response)
       },
-      error:function(err){
+      error: function (err) {
         console.log(err)
       }
     })
@@ -81,7 +83,7 @@ const Http = () => {
           <div>
             <button
               className="btn btn-light"
-              onClick={() => updateComment(data)}
+              onClick={() => showModal(false)}
             >
               <i className="fa fa-edit"></i>
             </button>
@@ -97,12 +99,18 @@ const Http = () => {
       </div>
     );
   };
+  const showModal = (isSubmit) => {
+    return (
+      setModal(true),
+      setSubmit(isSubmit)
+    )
+  }
   const design = (
     <>
       <div className="container py-4 overflow-hidden">
         <div className="d-flex justify-content-between mb-4 align-items-center">
-          <h1 className="m-0 p-0 display-6">Comments - {count}</h1>
-          <button className="btn btn-success" onClick={() => setModal(true)}>
+          <h1 className="m-0 p-0 display-6">Comments - {count} / {total}</h1>
+          <button className="btn btn-success" onClick={() => showModal(true)}>
             New Comment
           </button>
         </div>
@@ -121,7 +129,7 @@ const Http = () => {
               <Modal.Title>Add new comment</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              <Form onSubmit={insertComment}>
+              <Form onSubmit={submit ? insertComment : updateComment}>
                 <div className="mb-3">
                   <label className="mb-1">Title</label>
                   <input
